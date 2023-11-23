@@ -1,0 +1,17 @@
+[package]
+name = "v26-neutron-utils"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+test = false
+doctest = false
+
+[dependencies]
+serde = "1.0"
+thiserror = "1.0"
+prost = "0.12.1"
+
+cosmwasm-std = { version = "1.5.0", features = [ "stargate" ] }
+cosmwasm-schema = "1.5.0"
+neutron-sdk = "0.7.0"
