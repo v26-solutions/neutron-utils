@@ -470,7 +470,7 @@ pub mod interchain_tx {
 }
 
 pub mod ica {
-    use cosmwasm_std::StdError;
+    use cosmwasm_std::{Binary, Coin, CustomQuery, Deps, QueryRequest, StdError, Uint64};
 
     #[cosmwasm_schema::cw_serde]
     pub struct OpenAckVersion {
@@ -486,5 +486,32 @@ pub mod ica {
         counterparty_version: &str,
     ) -> Result<OpenAckVersion, StdError> {
         cosmwasm_std::from_json(counterparty_version.as_bytes())
+    }
+
+    pub fn deposit_fee(deps: Deps<impl CustomQuery>) -> Result<Coin, StdError> {
+        #[cosmwasm_schema::cw_serde]
+        struct Params {
+            msg_submit_tx_max_messages: Uint64,
+            register_fee: Vec<Coin>,
+        }
+
+        #[cosmwasm_schema::cw_serde]
+        struct QueryParamsResponse {
+            params: Params,
+        }
+
+        let res: QueryParamsResponse = deps.querier.query(&QueryRequest::Stargate {
+            path: "/neutron.interchaintxs.v1.Query/Params".to_owned(),
+            data: Binary(vec![]),
+        })?;
+
+        let coin = res
+            .params
+            .register_fee
+            .into_iter()
+            .next()
+            .expect("there should always be a fee coin");
+
+        Ok(coin)
     }
 }
